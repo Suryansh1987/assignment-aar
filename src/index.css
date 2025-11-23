@@ -1,3 +1,152 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --primary-orange: #f97316;
+  --primary-orange-light: #fb923c;
+  --primary-orange-dark: #ea580c;
+  --primary-orange-50: #fff7ed;
+  --primary-orange-100: #ffedd5;
+  --primary-orange-200: #fed7aa;
+  --primary-orange-300: #fdba74;
+  --primary-orange-400: #fb923c;
+  --primary-orange-500: #f97316;
+  --primary-orange-600: #ea580c;
+  --primary-orange-700: #c2410c;
+  --primary-orange-800: #9a3412;
+  --primary-orange-900: #7c2d12;
+
+  --primary-black: #000000;
+  --gray-900: #111827;
+  --gray-800: #1f2937;
+  --gray-700: #374151;
+  --gray-600: #4b5563;
+  --gray-500: #6b7280;
+  --gray-400: #9ca3af;
+  --gray-300: #d1d5db;
+  --gray-200: #e5e7eb;
+  --gray-100: #f3f4f6;
+  --gray-50: #f9fafb;
+
+  --primary-white: #ffffff;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--primary-white);
+  color: var(--gray-900);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.gradient-orange-bg {
+  background: linear-gradient(135deg, var(--primary-orange-50) 0%, var(--primary-orange-100) 100%);
+}
+
+.gradient-orange-text {
+  background: linear-gradient(135deg, var(--primary-orange-500) 0%, var(--primary-orange-700) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-orange-button {
+  background: linear-gradient(135deg, var(--primary-orange-500) 0%, var(--primary-orange-600) 100%);
+}
+
+.gradient-orange-button:hover {
+  background: linear-gradient(135deg, var(--primary-orange-600) 0%, var(--primary-orange-700) 100%);
+}
+
+.gradient-black-button {
+  background: linear-gradient(135deg, var(--gray-800) 0%, var(--primary-black) 100%);
+}
+
+.gradient-black-button:hover {
+  background: linear-gradient(135deg, var(--gray-700) 0%, var(--gray-800) 100%);
+}
+
+.shadow-orange {
+  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.1), 0 2px 4px -1px rgba(249, 115, 22, 0.06);
+}
+
+.shadow-orange-lg {
+  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.1), 0 4px 6px -2px rgba(249, 115, 22, 0.05);
+}
+
+.border-orange {
+  border-color: var(--primary-orange-500);
+}
+
+.border-orange-light {
+  border-color: var(--primary-orange-300);
+}
+
+.text-orange {
+  color: var(--primary-orange-500);
+}
+
+.text-orange-dark {
+  color: var(--primary-orange-700);
+}
+
+.bg-orange {
+  background-color: var(--primary-orange-500);
+}
+
+.bg-orange-light {
+  background-color: var(--primary-orange-100);
+}
+
+.bg-orange-50 {
+  background-color: var(--primary-orange-50);
+}
+
+.animate-pulse-orange {
+  animation: pulse-orange 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-orange {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.focus-orange {
+  outline: 2px solid var(--primary-orange-500);
+  outline-offset: 2px;
+}
+
+.focus-orange:focus {
+  outline: 2px solid var(--primary-orange-500);
+  outline-offset: 2px;
+}
+
+.scrollbar-orange::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-orange::-webkit-scrollbar-track {
+  background: var(--gray-100);
+}
+
+.scrollbar-orange::-webkit-scrollbar-thumb {
+  background: var(--primary-orange-400);
+  border-radius: 3px;
+}
+
+.scrollbar-orange::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-orange-500);
+}

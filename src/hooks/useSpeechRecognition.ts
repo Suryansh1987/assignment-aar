@@ -35,7 +35,7 @@ export const useSpeechRecognition = () => {
       const recognitionInstance = new SpeechRecognition() as SpeechRecognitionInstance;
       recognitionInstance.continuous = false;
       recognitionInstance.interimResults = false;
-      recognitionInstance.lang = 'ja-JP';
+      recognitionInstance.lang = 'en-US'; // changed to English if preferred
 
       recognitionInstance.addEventListener('result', (event: Event) => {
         const speechEvent = event as SpeechRecognitionEvent;
@@ -43,7 +43,6 @@ export const useSpeechRecognition = () => {
           .map((result) => result[0])
           .map((result) => result.transcript)
           .join('');
-
         setTranscript(transcript);
       });
 
@@ -76,11 +75,17 @@ export const useSpeechRecognition = () => {
     }
   }, [recognition, isListening]);
 
+  // New method to clear the transcript manually
+  const resetTranscript = useCallback(() => {
+    setTranscript('');
+  }, []);
+
   return {
     isListening,
     transcript,
     isSupported,
     startListening,
     stopListening,
+    resetTranscript,  // added here
   };
 };
