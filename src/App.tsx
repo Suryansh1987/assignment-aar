@@ -35,6 +35,7 @@ function App() {
   const [textInput, setTextInput] = useState('');
 
   const debounceTimer = useRef<NodeJS.Timeout>();
+  const voiceProcessingRef = useRef(false); // Prevent multiple voice processing
 
   const {
     isListening,
@@ -43,6 +44,8 @@ function App() {
     startListening,
     stopListening,
     resetTranscript,
+    error: speechError,
+    confidence,
   } = useSpeechRecognition();
 
   useEffect(() => {
@@ -65,6 +68,33 @@ function App() {
     if (!debouncedLocation.trim()) return;
     fetchWeatherOnly(debouncedLocation);
   }, [debouncedLocation]);
+
+  // Handle voice input processing when listening stops
+  useEffect(() => {
+    const processVoiceInput = async () => {
+      // Only process if we just stopped listening and have a transcript
+      if (!isListening && transcript.trim() && !voiceProcessingRef.current) {
+        console.log('Processing voice input:', transcript);
+        voiceProcessingRef.current = true;
+        
+        try {
+          await handleUserInput(transcript);
+        } catch (error) {
+          console.error('Error processing voice input:', error);
+        } finally {
+          voiceProcessingRef.current = false;
+          // Reset transcript after processing
+          setTimeout(() => {
+            resetTranscript();
+          }, 1000);
+        }
+      }
+    };
+
+    // Add a small delay to ensure speech recognition has fully stopped
+    const timer = setTimeout(processVoiceInput, 500);
+    return () => clearTimeout(timer);
+  }, [isListening, transcript]); // Remove handleUserInput and resetTranscript from dependencies to avoid infinite loops
 
   const fetchWeatherOnly = async (loc: string) => {
     if (!hasVoiceQuery) {
@@ -112,6 +142,8 @@ function App() {
 
   const handleUserInput = async (inputText: string) => {
     if (!inputText.trim()) return;
+
+    console.log('handleUserInput called with:', inputText);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -177,10 +209,6 @@ function App() {
     }
   };
 
-  const handleVoiceInput = async (voiceText: string) => {
-    await handleUserInput(voiceText);
-  };
-
   const handleTextSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (textInput.trim()) {
@@ -190,30 +218,44 @@ function App() {
   };
 
   const handleMouseDown = useCallback(() => {
+    console.log('Mouse down - starting voice input');
+    voiceProcessingRef.current = false; // Reset processing flag
     resetTranscript();
     startListening();
   }, [resetTranscript, startListening]);
 
-  const handleMouseUp = useCallback(async () => {
+  const handleMouseUp = useCallback(() => {
+    console.log('Mouse up - stopping voice input');
     stopListening();
-    
-    setTimeout(async () => {
-      const text = transcript.trim();
-      if (text) {
-        await handleVoiceInput(text);
-      }
-    }, 300);
-  }, [stopListening, transcript, handleVoiceInput]);
+  }, [stopListening]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
+    console.log('Touch start - starting voice input');
     handleMouseDown();
   }, [handleMouseDown]);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
+    console.log('Touch end - stopping voice input');
     handleMouseUp();
   }, [handleMouseUp]);
+
+  // Debug logging
+  useEffect(() => {
+    if (speechError) {
+      console.error('Speech recognition error:', speechError);
+    }
+  }, [speechError]);
+
+  useEffect(() => {
+    console.log('Speech recognition state:', {
+      isListening,
+      transcript,
+      confidence,
+      error: speechError
+    });
+  }, [isListening, transcript, confidence, speechError]);
 
   return (
     <div className="min-h-screen gradient-orange-bg">
@@ -227,6 +269,9 @@ function App() {
           </div>
           <p className="text-gray-600 text-lg">
             Use your voice or type to get outfit ideas tailored to today&apos;s weather.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Supports multiple languages including Japanese (日本語)
           </p>
         </header>
 
@@ -250,6 +295,15 @@ function App() {
           </div>
         </div>
 
+        {/* Error display for speech recognition */}
+        {speechError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-center">
+            <p className="text-red-600 text-sm">
+              Speech Error: {speechError}
+            </p>
+          </div>
+        )}
+
         {messages.length === 0 && !weatherData && !isLoading && (
           <div className="bg-white rounded-2xl shadow-orange-lg p-12 mb-8 text-center">
             <div className="max-w-2xl mx-auto">
@@ -261,6 +315,9 @@ function App() {
                 <p>2. <strong>Hold</strong> the mic button and speak, or <strong>type</strong> your question.</p>
                 <p className="text-sm text-gray-500 pl-6">
                   Example: &quot;What should I wear today?&quot; or &quot;How is the weather?&quot;
+                </p>
+                <p className="text-sm text-gray-500 pl-6">
+                  日本語例: &quot;今日は何を着ればいいですか？&quot; or &quot;天気はどうですか？&quot;
                 </p>
                 <p>3. Get outfit suggestions or weather information instantly.</p>
               </div>
@@ -293,6 +350,8 @@ function App() {
             onMouseUp={handleMouseUp}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
+            error={speechError}
+            confidence={confidence}
           />
           
           {messages.length === 0 && (
@@ -327,6 +386,11 @@ function App() {
             <div className="bg-orange-light border border-orange-light rounded-lg p-4 max-w-md">
               <p className="text-orange-dark text-sm">
                 <strong>Listening:</strong> {transcript}
+                {confidence > 0 && (
+                  <span className="block text-xs text-gray-600 mt-1">
+                    Confidence: {Math.round(confidence * 100)}%
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -349,7 +413,9 @@ function App() {
         )}
 
         <footer className="text-center mt-16 text-gray-500 text-sm">
-          <p>Powered by OpenWeather API &amp; Gemini AI</p>
+          <p className="text-xs mt-1">
+            Voice input supports: English, Japanese (日本語)
+          </p>
         </footer>
       </div>
     </div>
